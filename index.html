@@ -17,7 +17,7 @@
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Roboto', monospace;
             background: #0a0c10;
             color: #e2e8f0;
-            padding: 20px;
+            padding: 16px;
             padding-bottom: 40px;
         }
 
@@ -44,7 +44,7 @@
         .sub {
             text-align: center;
             color: #5b6e8c;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             font-size: 0.8rem;
             letter-spacing: 1px;
             font-family: monospace;
@@ -70,7 +70,7 @@
             backdrop-filter: blur(4px);
         }
 
-        /* Recommender & Flasher cards */
+        /* Cards */
         .recommender-card, .custom-flasher-card {
             background: rgba(16, 22, 34, 0.9);
             backdrop-filter: blur(2px);
@@ -105,11 +105,11 @@
             width: 100%;
             background: #0f1722;
             border: 1px solid #2a3a50;
-            padding: 10px 14px;
+            padding: 12px 14px;
             border-radius: 12px;
             color: #e2e8f0;
             font-family: monospace;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             cursor: pointer;
         }
 
@@ -126,12 +126,12 @@
             background: #11161f;
             border: 1px solid #2a3a50;
             border-radius: 40px;
-            padding: 8px 12px;
+            padding: 10px 12px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
             font-family: monospace;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
         }
 
         .option-btn.selected {
@@ -163,7 +163,7 @@
         }
 
         .rec-desc {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: #a3b3d6;
             margin-bottom: 12px;
         }
@@ -173,10 +173,10 @@
             background: #2563eb;
             border: none;
             border-radius: 30px;
-            padding: 8px 20px;
+            padding: 10px 20px;
             color: white;
             text-decoration: none;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             font-family: monospace;
             transition: 0.2s;
         }
@@ -189,7 +189,7 @@
         .flash-controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 16px;
+            gap: 12px;
             margin-bottom: 20px;
             align-items: center;
         }
@@ -203,6 +203,8 @@
             font-family: monospace;
             font-size: 0.85rem;
             transition: 0.2s;
+            display: inline-block;
+            text-align: center;
         }
 
         .file-label:hover {
@@ -212,6 +214,7 @@
         #fileName {
             color: #7e8ba3;
             font-size: 0.8rem;
+            word-break: break-word;
         }
 
         .flash-action-btn {
@@ -362,19 +365,16 @@
             font-family: monospace;
         }
 
-        @media (max-width: 550px) {
+        /* Mobile-specific adjustments */
+        @media (max-width: 600px) {
             body {
-                padding: 14px;
+                padding: 12px;
             }
-            .flash-card, .recommender-card, .custom-flasher-card {
-                padding: 1.2rem;
-            }
-            .flash-btn {
-                padding: 8px 16px;
-                font-size: 0.75rem;
+            .recommender-card, .custom-flasher-card, .flash-card {
+                padding: 1rem;
             }
             .flash-card h2 {
-                font-size: 1.3rem;
+                font-size: 1.2rem;
             }
             .option-group {
                 flex-direction: column;
@@ -383,6 +383,21 @@
             .flash-controls {
                 flex-direction: column;
                 align-items: stretch;
+            }
+            .file-label, .flash-action-btn, select {
+                width: 100%;
+                text-align: center;
+            }
+            .flash-btn {
+                width: 100%;
+                margin-right: 0;
+                justify-content: center;
+            }
+            .rec-firmware {
+                font-size: 1.2rem;
+            }
+            .rec-desc {
+                font-size: 0.8rem;
             }
         }
     </style>
@@ -398,7 +413,7 @@
         The web app is offline. Only local files (custom flasher) will work. External firmware links require internet.
     </div>
 
-    <!-- INSTALL APP BUTTON (appears only when browser supports PWA installation) -->
+    <!-- INSTALL APP BUTTON -->
     <div id="installContainer" style="text-align: center; margin-bottom: 20px;">
         <button id="installButton" class="flash-btn primary" style="display: none;">📱 Install App (Android)</button>
     </div>
@@ -431,7 +446,7 @@
         </div>
     </div>
 
-    <!-- CUSTOM FLASHER (works offline) -->
+    <!-- CUSTOM FLASHER -->
     <div class="custom-flasher-card">
         <h2>// CUSTOM FIRMWARE FLASHER</h2>
         <div class="desc">Select any firmware (.bin) file from your computer or phone and flash it directly to your M5Stick. Works offline.</div>
@@ -453,7 +468,7 @@
         </div>
     </div>
 
-    <!-- EXISTING FIRMWARE CARDS (external links) -->
+    <!-- EXISTING FIRMWARE CARDS -->
     <div class="flash-card">
         <h2>BRUCE <span class="badge">RED TEAM TOOLKIT</span></h2>
         <div class="desc">Wi-Fi attacks, BLE, Evil Portal, IR, RFID/NFC, BadUSB and more. Most feature‑rich firmware for M5StickC Plus 2.</div>
@@ -498,7 +513,7 @@
 </script>
 
 <script>
-    // Offline detection banner
+    // Offline detection
     function updateOfflineBanner() {
         const banner = document.getElementById('offlineBanner');
         if (banner) {
@@ -511,36 +526,25 @@
 </script>
 
 <script>
-    // PWA Install Button Logic
+    // PWA Install
     let deferredPrompt;
     const installBtn = document.getElementById('installButton');
-
     window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent automatic prompt
         e.preventDefault();
-        // Store the event for later
         deferredPrompt = e;
-        // Show the install button
         installBtn.style.display = 'inline-flex';
     });
-
     installBtn.addEventListener('click', async () => {
         if (!deferredPrompt) return;
-        // Show the native install prompt
         deferredPrompt.prompt();
-        // Wait for user choice
         const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to install prompt: ${outcome}`);
-        // Clear the deferred prompt (can't be used again)
+        console.log(`Install prompt outcome: ${outcome}`);
         deferredPrompt = null;
-        // Hide the button
         installBtn.style.display = 'none';
     });
-
-    // Optional: hide the button if the app is already installed
     window.addEventListener('appinstalled', () => {
         installBtn.style.display = 'none';
-        console.log('PWA was installed');
+        console.log('PWA installed');
     });
 </script>
 
