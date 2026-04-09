@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>IoT Firmware Hub</title>
+    <title>M5Stick Firmware Hub</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a0c10">
     <style>
@@ -398,44 +398,10 @@
         The web app is offline. Only local files (custom flasher) will work. External firmware links require internet.
     </div>
 
-    <!-- Add this right after the offline banner, inside the .container -->
-<div id="installContainer" style="text-align: center; margin-bottom: 20px;">
-    <button id="installButton" class="flash-btn primary" style="display: none;">📱 Install App (Android)</button>
-</div>
-
-<!-- Then add this script before the closing </body> -->
-<script>
-    let deferredPrompt;
-    const installBtn = document.getElementById('installButton');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        // Stash the event so it can be triggered later
-        deferredPrompt = e;
-        // Show the install button
-        installBtn.style.display = 'inline-flex';
-    });
-
-    installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        // Show the install prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`User response to install prompt: ${outcome}`);
-        // We've used the prompt, and can't use it again, discard it
-        deferredPrompt = null;
-        // Hide the button
-        installBtn.style.display = 'none';
-    });
-
-    // Optional: hide the button if the app is already installed
-    window.addEventListener('appinstalled', () => {
-        installBtn.style.display = 'none';
-        console.log('PWA was installed');
-    });
-</script>
+    <!-- INSTALL APP BUTTON (appears only when browser supports PWA installation) -->
+    <div id="installContainer" style="text-align: center; margin-bottom: 20px;">
+        <button id="installButton" class="flash-btn primary" style="display: none;">📱 Install App (Android)</button>
+    </div>
 
     <!-- FIRMWARE RECOMMENDER -->
     <div class="recommender-card">
@@ -468,7 +434,7 @@
     <!-- CUSTOM FLASHER (works offline) -->
     <div class="custom-flasher-card">
         <h2>// CUSTOM FIRMWARE FLASHER</h2>
-        <div class="desc">Select any firmware (.bin) file from your computer and flash it directly to your M5Stick. Works offline.</div>
+        <div class="desc">Select any firmware (.bin) file from your computer or phone and flash it directly to your M5Stick. Works offline.</div>
         <div class="flash-controls">
             <input type="file" id="firmwareFile" accept=".bin" style="display: none;">
             <label for="firmwareFile" class="file-label" id="fileLabel">Choose .bin file</label>
@@ -481,7 +447,10 @@
             <button id="flashButton" class="flash-action-btn" disabled>Connect & Flash</button>
         </div>
         <div class="log-box" id="log">Ready. Select a firmware file and click "Connect & Flash".</div>
-        <div class="info-note">⚠️ Works in Chrome, Edge, Opera (Web Serial API). Offset 0x10000 is correct for most M5Stick firmwares (Bruce, Marauder, etc.).</div>
+        <div class="info-note">
+            ⚠️ Works in Chrome, Edge, Opera (Web Serial API). Offset 0x10000 is correct for most M5Stick firmwares (Bruce, Marauder, etc.).<br>
+            📱 On Android: Use Chrome and a USB OTG cable to flash from your phone.
+        </div>
     </div>
 
     <!-- EXISTING FIRMWARE CARDS (external links) -->
@@ -539,6 +508,40 @@
     window.addEventListener('load', updateOfflineBanner);
     window.addEventListener('online', updateOfflineBanner);
     window.addEventListener('offline', updateOfflineBanner);
+</script>
+
+<script>
+    // PWA Install Button Logic
+    let deferredPrompt;
+    const installBtn = document.getElementById('installButton');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent automatic prompt
+        e.preventDefault();
+        // Store the event for later
+        deferredPrompt = e;
+        // Show the install button
+        installBtn.style.display = 'inline-flex';
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        // Show the native install prompt
+        deferredPrompt.prompt();
+        // Wait for user choice
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to install prompt: ${outcome}`);
+        // Clear the deferred prompt (can't be used again)
+        deferredPrompt = null;
+        // Hide the button
+        installBtn.style.display = 'none';
+    });
+
+    // Optional: hide the button if the app is already installed
+    window.addEventListener('appinstalled', () => {
+        installBtn.style.display = 'none';
+        console.log('PWA was installed');
+    });
 </script>
 
 <script>
