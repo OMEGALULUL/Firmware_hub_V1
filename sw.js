@@ -1,15 +1,13 @@
 // sw.js - Service Worker for M5Stick Firmware Hub
-const CACHE_NAME = 'm5-firmware-hub-v2';
-//Change Version for new updates
-// List of core assets to cache (add your local esptool-js files if offline)
+const CACHE_NAME = 'm5-firmware-hub-v3';
+//Change version number when pushing new updates PLS
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/app.js',
-  '/js/esptool/lib/index.js',
-  '/js/esptool/lib/esptool.js'
-  // Add any other local files (CSS, icons, etc.)
+  '/esptool.js'          // if you place the esptool-js bundle in root
+  // Add any other root files (e.g., icons) here
 ];
 
 self.addEventListener('install', event => {
