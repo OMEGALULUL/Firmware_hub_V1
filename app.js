@@ -1,94 +1,100 @@
 // app.js - M5Stick Firmware Hub
-// Handles Firmware Recommender and Custom Flasher (esptool-js)
+// Contains Firmware Recommender and Custom Flasher
 
-// ---------- FIRMWARE RECOMMENDER ----------
-(function initRecommender() {
+export default function initApp() {
+    // ---------- FIRMWARE RECOMMENDER ----------
     const goalSelect = document.getElementById('goalSelect');
     const otaButtons = document.querySelectorAll('.option-btn');
     let otaChoice = 'no';
-
     const recBox = document.getElementById('recommendationBox');
     const recFirmwareName = document.getElementById('recFirmwareName');
     const recDescription = document.getElementById('recDescription');
     const recFlashLink = document.getElementById('recFlashLink');
     const recNote = document.getElementById('recNote');
 
-    if (!goalSelect || !otaButtons.length) return; // exit if elements missing
-
-    function updateRecommendation() {
-        const goal = goalSelect.value;
-        let firmware = '', description = '', link = '', note = '';
-        if (otaChoice === 'yes') {
-            firmware = 'M5Launcher (Bootloader)';
-            description = 'Install M5Launcher once, then use its OTA menu to wirelessly flash Bruce, Marauder, or Infiltra without a PC.';
-            link = 'https://bmorcelli.github.io/M5Stick-Launcher/flash0.html';
-            note = 'After installing Launcher, you can download any firmware directly on the device.';
-        } else {
-            switch(goal) {
-                case 'wifi':
-                    firmware = 'Marauder';
-                    description = 'Specialized Wi-Fi pentesting: deauth attacks, beacon floods, packet monitoring, and wardriving.';
-                    link = 'https://atomnft.github.io/M5stick-Marauder/flash0.html';
-                    note = 'Best for dedicated Wi-Fi security testing.';
-                    break;
-                case 'allround':
-                    firmware = 'Bruce';
-                    description = 'Most comprehensive toolkit: Wi-Fi, BLE, IR, RFID/NFC, BadUSB, Evil Portal, and more.';
-                    link = 'https://bruce.computer/flasher';
-                    note = 'Select M5StickC Plus 2 in the flasher.';
-                    break;
-                case 'ota':
-                    firmware = 'M5Launcher';
-                    description = 'Bootloader + OTA manager. Install this first, then use it to download other firmwares over Wi-Fi.';
-                    link = 'https://bmorcelli.github.io/M5Stick-Launcher/flash0.html';
-                    note = 'After flashing Launcher, you never need a PC again.';
-                    break;
-                case 'rfid':
-                    firmware = 'Bruce or Infiltra';
-                    description = 'Both support RFID/NFC, IR, and BLE. Bruce has more active attacks; Infiltra focuses on recon and file explorer.';
-                    link = 'https://bruce.computer/flasher';
-                    note = 'Try Bruce first for RFID cloning and IR attacks. Infiltra is also excellent.';
-                    break;
-                default:
-                    firmware = 'Bruce';
-                    description = 'Versatile all-in-one firmware for most use cases.';
-                    link = 'https://bruce.computer/flasher';
-                    note = 'Reliable choice for general hacking.';
+    if (goalSelect && otaButtons.length) {
+        function updateRecommendation() {
+            const goal = goalSelect.value;
+            let firmware = '', description = '', link = '', note = '';
+            if (otaChoice === 'yes') {
+                firmware = 'M5Launcher (Bootloader)';
+                description = 'Install M5Launcher once, then use its OTA menu to wirelessly flash Bruce, Marauder, or Infiltra without a PC.';
+                link = 'https://bmorcelli.github.io/M5Stick-Launcher/flash0.html';
+                note = 'After installing Launcher, you can download any firmware directly on the device.';
+            } else {
+                switch(goal) {
+                    case 'wifi':
+                        firmware = 'Marauder';
+                        description = 'Specialized Wi-Fi pentesting: deauth attacks, beacon floods, packet monitoring, and wardriving.';
+                        link = 'https://atomnft.github.io/M5stick-Marauder/flash0.html';
+                        note = 'Best for dedicated Wi-Fi security testing.';
+                        break;
+                    case 'allround':
+                        firmware = 'Bruce';
+                        description = 'Most comprehensive toolkit: Wi-Fi, BLE, IR, RFID/NFC, BadUSB, Evil Portal, and more.';
+                        link = 'https://bruce.computer/flasher';
+                        note = 'Select M5StickC Plus 2 in the flasher.';
+                        break;
+                    case 'ota':
+                        firmware = 'M5Launcher';
+                        description = 'Bootloader + OTA manager. Install this first, then use it to download other firmwares over Wi-Fi.';
+                        link = 'https://bmorcelli.github.io/M5Stick-Launcher/flash0.html';
+                        note = 'After flashing Launcher, you never need a PC again.';
+                        break;
+                    case 'rfid':
+                        firmware = 'Bruce or Infiltra';
+                        description = 'Both support RFID/NFC, IR, and BLE. Bruce has more active attacks; Infiltra focuses on recon and file explorer.';
+                        link = 'https://bruce.computer/flasher';
+                        note = 'Try Bruce first for RFID cloning and IR attacks. Infiltra is also excellent.';
+                        break;
+                    default:
+                        firmware = 'Bruce';
+                        description = 'Versatile all-in-one firmware for most use cases.';
+                        link = 'https://bruce.computer/flasher';
+                        note = 'Reliable choice for general hacking.';
+                }
             }
+            recFirmwareName.innerText = firmware;
+            recDescription.innerText = description;
+            recFlashLink.href = link;
+            recNote.innerText = note;
+            recBox.style.display = 'block';
         }
-        recFirmwareName.innerText = firmware;
-        recDescription.innerText = description;
-        recFlashLink.href = link;
-        recNote.innerText = note;
-        recBox.style.display = 'block';
+
+        otaButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                otaButtons.forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                otaChoice = btn.getAttribute('data-ota');
+                updateRecommendation();
+            });
+        });
+        goalSelect.addEventListener('change', updateRecommendation);
+        const defaultNo = document.querySelector('.option-btn[data-ota="no"]');
+        if (defaultNo) defaultNo.classList.add('selected');
+        updateRecommendation();
     }
 
-    otaButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            otaButtons.forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            otaChoice = btn.getAttribute('data-ota');
-            updateRecommendation();
-        });
-    });
-    goalSelect.addEventListener('change', updateRecommendation);
-    // Set default: "No" selected
-    const defaultNo = document.querySelector('.option-btn[data-ota="no"]');
-    if (defaultNo) defaultNo.classList.add('selected');
-    updateRecommendation();
-})();
+    // ---------- CUSTOM FLASHER (esptool-js) ----------
+    // Try to load esptool-js from root (if placed there) or fallback to CDN
+    const loadEsptool = async () => {
+        try {
+            // Attempt local file in root (you must place esptool.js there)
+            const module = await import('./esptool.js');
+            return module;
+        } catch {
+            // Fallback to CDN (online only)
+            console.warn('Local esptool.js not found, using CDN (offline flashing will not work)');
+            return import('https://unpkg.com/esptool-js@0.4.0/lib/index.js');
+        }
+    };
 
-// ---------- CUSTOM FLASHER (esptool-js) ----------
-// This part requires the esptool-js library. Make sure to import it.
-// The import is handled in the HTML using <script type="module">.
-// We'll export a function to initialize it after the DOM is ready.
-
-export function initCustomFlasher() {
     const fileInput = document.getElementById('firmwareFile');
     const fileLabel = document.getElementById('fileLabel');
     const fileNameSpan = document.getElementById('fileName');
     const flashButton = document.getElementById('flashButton');
     const logDiv = document.getElementById('log');
+    const offsetSelect = document.getElementById('offsetSelect');
 
     if (!fileInput || !flashButton) return;
 
@@ -119,9 +125,7 @@ export function initCustomFlasher() {
         }
     });
 
-    if (fileLabel) {
-        fileLabel.addEventListener('click', () => fileInput.click());
-    }
+    if (fileLabel) fileLabel.addEventListener('click', () => fileInput.click());
 
     flashButton.addEventListener('click', async () => {
         if (!selectedFile) {
@@ -135,10 +139,8 @@ export function initCustomFlasher() {
         addLog('[INFO] Starting flashing process...');
 
         try {
-            // Dynamically import esptool-js (adjust path as needed)
-            const { ESPLoader, Transport } = await import('./js/esptool/lib/index.js');
-            // Request serial port
-            addLog('[INFO] Requesting serial port (please select your M5Stick COM port)...');
+            const { ESPLoader, Transport } = await loadEsptool();
+            addLog('[INFO] Requesting serial port (select your M5Stick COM port)...');
             const port = await navigator.serial.requestPort();
             addLog('[INFO] Port selected.');
 
@@ -163,8 +165,12 @@ export function initCustomFlasher() {
             const firmwareData = new Uint8Array(arrayBuffer);
             addLog(`[INFO] Firmware size: ${firmwareData.length} bytes`);
 
-            const offset = 0x10000;
-            addLog(`[INFO] Erasing and flashing at offset 0x${offset.toString(16)}...`);
+            // Get offset from dropdown (value is hex string like "0x10000")
+            const offsetHex = offsetSelect.value;
+            const offset = parseInt(offsetHex, 16);
+            addLog(`[INFO] Using flash offset: ${offsetHex}`);
+
+            addLog(`[INFO] Erasing and flashing at offset ${offsetHex}...`);
             await esploader.flashData(offset, firmwareData, (addr, total, current) => {
                 const percent = (current / total * 100).toFixed(1);
                 addLog(`[PROGRESS] ${percent}% - address: 0x${addr.toString(16)}`);
