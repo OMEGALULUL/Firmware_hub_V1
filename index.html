@@ -398,6 +398,45 @@
         The web app is offline. Only local files (custom flasher) will work. External firmware links require internet.
     </div>
 
+    <!-- Add this right after the offline banner, inside the .container -->
+<div id="installContainer" style="text-align: center; margin-bottom: 20px;">
+    <button id="installButton" class="flash-btn primary" style="display: none;">📱 Install App (Android)</button>
+</div>
+
+<!-- Then add this script before the closing </body> -->
+<script>
+    let deferredPrompt;
+    const installBtn = document.getElementById('installButton');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later
+        deferredPrompt = e;
+        // Show the install button
+        installBtn.style.display = 'inline-flex';
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to install prompt: ${outcome}`);
+        // We've used the prompt, and can't use it again, discard it
+        deferredPrompt = null;
+        // Hide the button
+        installBtn.style.display = 'none';
+    });
+
+    // Optional: hide the button if the app is already installed
+    window.addEventListener('appinstalled', () => {
+        installBtn.style.display = 'none';
+        console.log('PWA was installed');
+    });
+</script>
+
     <!-- FIRMWARE RECOMMENDER -->
     <div class="recommender-card">
         <h2>// FIRMWARE ADVISOR</h2>
