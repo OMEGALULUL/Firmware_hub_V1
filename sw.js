@@ -1,15 +1,15 @@
-// sw.js - Service Worker for M5Stick Firmware Hub
-const CACHE_NAME = 'm5-firmware-hub-v3';
-//Change version number when pushing new updates PLS
+//remember the VERSION TO UPDATE TEXT PLSSSS
+const CACHE_NAME = 'm5-firmware-hub-v4';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
   '/app.js',
-  '/esptool.js'          // if you place the esptool-js bundle in root
-  // Add any other root files (e.g., icons) here
+  // Add the full path to the esptool-js library on the CDN
+  'https://unpkg.com/esptool-js@0.4.0/lib/index.js'
 ];
 
+// The rest of your service worker logic remains unchanged
 self.addEventListener('install', event => {
   console.log('Service Worker installing.');
   event.waitUntil(
