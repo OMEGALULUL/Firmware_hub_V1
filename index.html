@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>M5Stick Firmware Hub</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0c10">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Roboto', monospace;
+            background: #0a0c10;
+            color: #e2e8f0;
+            padding: 20px;
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            text-align: center;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+            font-family: 'Inter', monospace;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #00ffcc, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 5px rgba(0,255,204,0.3);
+        }
+
+        .sub {
+            text-align: center;
+            color: #5b6e8c;
+            margin-bottom: 2rem;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            font-family: monospace;
+            border-bottom: 1px solid #1a1f2e;
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+            padding-bottom: 6px;
+        }
+
+        /* Recommender Card */
+        .recommender-card {
+            background: rgba(16, 22, 34, 0.9);
+            backdrop-filter: blur(2px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #00ffcc30;
+            box-shadow: 0 0 12px rgba(0,255,204,0.1);
+        }
+
+        .recommender-card h2 {
+            font-size: 1.3rem;
+            color: #00ffcc;
+            margin-bottom: 1rem;
+            font-family: monospace;
+            letter-spacing: -0.2px;
+        }
+
+        .question {
+            margin-bottom: 1.5rem;
+        }
+
+        .question label {
+            display: block;
+            font-size: 0.85rem;
+            color: #a3b3d6;
+            margin-bottom: 8px;
+            font-family: monospace;
+        }
+
+        select, .option-group {
+            width: 100%;
+            background: #0f1722;
+            border: 1px solid #2a3a50;
+            padding: 10px 14px;
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-family: monospace;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .option-group {
+            display: flex;
+            gap: 12px;
+            background: transparent;
+            padding: 0;
+            border: none;
+        }
+
+        .option-btn {
+            flex: 1;
+            background: #11161f;
+            border: 1px solid #2a3a50;
+            border-radius: 40px;
+            padding: 8px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .option-btn.selected {
+            background: #1e2a4a;
+            border-color: #00ffcc;
+            color: #00ffcc;
+            box-shadow: 0 0 6px rgba(0,255,204,0.3);
+        }
+
+        .recommend-result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #0a0f18;
+            border-radius: 16px;
+            border-left: 3px solid #2563eb;
+        }
+
+        .rec-title {
+            font-size: 0.75rem;
+            color: #7e8ba3;
+            letter-spacing: 1px;
+        }
+
+        .rec-firmware {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #00ffcc;
+            margin: 8px 0;
+        }
+
+        .rec-desc {
+            font-size: 0.8rem;
+            color: #a3b3d6;
+            margin-bottom: 12px;
+        }
+
+        .rec-btn {
+            display: inline-block;
+            background: #2563eb;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-family: monospace;
+            transition: 0.2s;
+        }
+
+        .rec-btn:hover {
+            background: #3b82f6;
+        }
+
+        /* Flash cards (same as before) */
+        .flash-card {
+            background: rgba(16, 22, 34, 0.8);
+            backdrop-filter: blur(2px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.8rem;
+            border: 1px solid #1e2a3a;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+        
+        .flash-card:hover {
+            border-color: #00ffcc30;
+            box-shadow: 0 0 12px rgba(0,255,204,0.1);
+        }
+
+        .flash-card h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+            font-family: monospace;
+            letter-spacing: -0.3px;
+            color: #00ffcc;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: #1a2332;
+            border-radius: 40px;
+            padding: 2px 10px;
+            font-size: 0.65rem;
+            font-weight: normal;
+            color: #7e8ba3;
+            font-family: monospace;
+            border: 0.5px solid #2d3a4e;
+        }
+
+        .desc {
+            color: #a3b3d6;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        .flash-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a2332;
+            border: 1px solid #2a3a50;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-right: 12px;
+            margin-bottom: 12px;
+            font-family: monospace;
+        }
+
+        .flash-btn.primary {
+            background: #0f1722;
+            border-color: #2563eb;
+            color: #60a5fa;
+        }
+
+        .flash-btn.primary:hover {
+            background: #1e2a4a;
+            border-color: #3b82f6;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .flash-btn.secondary {
+            background: #11161f;
+            border-color: #2d3a4e;
+            color: #94a3b8;
+        }
+
+        .flash-btn.secondary:hover {
+            background: #1e2a3a;
+            border-color: #5b6e8c;
+        }
+
+        .info-note {
+            background: #0d1119;
+            border-left: 3px solid #2563eb;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: #7e8ba3;
+            margin-top: 16px;
+            font-family: monospace;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #2d3a4e;
+            margin-top: 2rem;
+            border-top: 1px solid #1a1f2e;
+            padding-top: 1.5rem;
+            font-family: monospace;
+        }
+
+        @media (max-width: 550px) {
+            body {
+                padding: 14px;
+            }
+            .flash-card, .recommender-card {
+                padding: 1.2rem;
+            }
+            .flash-btn {
+                padding: 8px 16px;
+                font-size: 0.75rem;
+            }
+            .flash-card h2 {
+                font-size: 1.3rem;
+            }
+            .option-group {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>M5STICK FIRMWARE HUB</h1>
+    <div style="text-align: center;">
+        <div class="sub">FAST FLASH · OFFLINE READY · INSTALL AS PWA</div>
+    </div>
+
+    <!-- FIRMWARE RECOMMENDER SECTION -->
+    <div class="recommender-card">
+        <h2>// FIRMWARE ADVISOR</h2>
+        <div class="question">
+            <label>1. What is your primary goal?</label>
+            <select id="goalSelect">
+                <option value="wifi">Wi-Fi attacks (deauth, beacon, packet capture)</option>
+                <option value="allround">All-around hacking (Wi-Fi, BLE, IR, RFID, BadUSB)</option>
+                <option value="ota">Easy firmware switching without PC (OTA manager)</option>
+                <option value="rfid">RFID / NFC / IR / BLE scanning and cloning</option>
+            </select>
+        </div>
+        <div class="question">
+            <label>2. Do you want to install once and then switch firmwares wirelessly (OTA)?</label>
+            <div class="option-group" id="otaGroup">
+                <div class="option-btn" data-ota="yes">Yes, OTA switching</div>
+                <div class="option-btn" data-ota="no">No, direct flash is fine</div>
+            </div>
+        </div>
+
+        <div id="recommendationBox" class="recommend-result" style="display: none;">
+            <div class="rec-title">RECOMMENDED FIRMWARE</div>
+            <div class="rec-firmware" id="recFirmwareName"></div>
+            <div class="rec-desc" id="recDescription"></div>
+            <a href="#" id="recFlashLink" class="rec-btn" target="_blank">OPEN FLASHER →</a>
+            <div style="font-size: 0.7rem; margin-top: 12px; color: #5b6e8c;" id="recNote"></div>
+        </div>
+    </div>
+
+    <!-- Existing firmware cards (Bruce, Marauder, Infiltra, M5Launcher) -->
+    <div class="flash-card">
+        <h2>BRUCE <span class="badge">RED TEAM TOOLKIT</span></h2>
+        <div class="desc">Wi-Fi attacks, BLE, Evil Portal, IR, RFID/NFC, BadUSB and more. Most feature‑rich firmware for M5StickC Plus 2.</div>
+        <a href="https://bruce.computer/flasher" target="_blank" rel="noopener noreferrer" class="flash-btn primary">OPEN FLASHER</a>
+        <a href="https://github.com/bmorcelli/Bruce" target="_blank" rel="noopener noreferrer" class="flash-btn secondary">GITHUB</a>
+        <div class="info-note">OFFICIAL WEB FLASHER — SELECT M5STICKC PLUS 2 AND CLICK 'FLASH'.</div>
+    </div>
+
+    <div class="flash-card">
+        <h2>MARAUDER <span class="badge">WI-FI PENTEST</span></h2>
+        <div class="desc">Specialized in Wi-Fi attacks: deauth, beacon flood, packet monitoring, wardriving, and BLE spam.</div>
+        <a href="https://atomnft.github.io/M5stick-Marauder/flash0.html" target="_blank" rel="noopener noreferrer" class="flash-btn primary">OPEN FLASHER</a>
+        <a href="https://github.com/ATOMNFT/M5stick-Marauder" target="_blank" rel="noopener noreferrer" class="flash-btn secondary">GITHUB</a>
+        <div class="info-note">COMMUNITY FLASHER — OPTIMIZED FOR M5STICKC PLUS / PLUS2. USE CHROME OR EDGE.</div>
+    </div>
+
+    <div class="flash-card">
+        <h2>INFILTRA <span class="badge">ALL-IN-ONE SECURITY</span></h2>
+        <div class="desc">Wireless recon, IR, BLE advertising, file explorer, and hardware hacking — 60‑second web install.</div>
+        <a href="https://infiltra.xyz" target="_blank" rel="noopener noreferrer" class="flash-btn primary">OPEN FLASHER</a>
+        <a href="https://github.com/D3CRYPT-1/Infiltra-Firmware" target="_blank" rel="noopener noreferrer" class="flash-btn secondary">GITHUB</a>
+        <div class="info-note">ONE‑CLICK WEB FLASHER — SUPPORTS M5STICKC PLUS 2 DIRECTLY.</div>
+    </div>
+
+    <div class="flash-card">
+        <h2>M5LAUNCHER <span class="badge">BOOTLOADER · OTA MANAGER</span></h2>
+        <div class="desc">Install once, then download and switch firmwares wirelessly (OTA) from your M5Stick. Like an "app store" for device firmware.</div>
+        <a href="https://bmorcelli.github.io/Launcher/webflasher.html" target="_blank" rel="noopener noreferrer" class="flash-btn primary">INSTALL LAUNCHER</a>
+        <a href="https://github.com/bmorcelli/Launcher" target="_blank" rel="noopener noreferrer" class="flash-btn secondary">GITHUB</a>
+        <div class="info-note">TIP: FLASH M5LAUNCHER FIRST, THEN USE OTA TO INSTALL BRUCE / MARAUDER / INFILTRA WITHOUT A PC.</div>
+    </div>
+
+    <footer>
+        ALL FLASHERS OPEN IN A NEW TAB. PWA CACHES THIS HUB FOR OFFLINE USE.<br>
+        ALWAYS RESPECT LICENSES AND USE FIRMWARES ETHICALLY ON YOUR OWN DEVICES.
+    </footer>
+</div>
+
+<script>
+    // Recommender logic
+    const goalSelect = document.getElementById('goalSelect');
+    const otaButtons = document.querySelectorAll('.option-btn');
+    let otaChoice = 'no'; // default
+
+    const recBox = document.getElementById('recommendationBox');
+    const recFirmwareName = document.getElementById('recFirmwareName');
+    const recDescription = document.getElementById('recDescription');
+    const recFlashLink = document.getElementById('recFlashLink');
+    const recNote = document.getElementById('recNote');
+
+    // Update OTA selection style
+    otaButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            otaButtons.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            otaChoice = btn.getAttribute('data-ota');
+            updateRecommendation();
+        });
+    });
+
+    goalSelect.addEventListener('change', updateRecommendation);
+
+    function updateRecommendation() {
+        const goal = goalSelect.value;
+        let firmware = '';
+        let description = '';
+        let link = '';
+        let note = '';
+
+        if (otaChoice === 'yes') {
+            // If user wants OTA switching, always recommend M5Launcher as first step
+            firmware = 'M5Launcher (Bootloader)';
+            description = 'Install M5Launcher once, then use its OTA menu to wirelessly flash Bruce, Marauder, or Infiltra without a PC.';
+            link = 'https://bmorcelli.github.io/M5Stick-Launcher/flash0.html';
+            note = 'After installing Launcher, you can download any firmware directly on the device.';
+        } else {
+            // Direct flash recommendations based on goal
+            switch(goal) {
+                case 'wifi':
+                    firmware = 'Marauder';
+                    description = 'Specialized Wi-Fi pentesting: deauth attacks, beacon floods, packet monitoring, and wardriving.';
+                    link = 'https://atomnft.github.io/M5stick-Marauder/flash0.html';
+                    note = 'Best for dedicated Wi-Fi security testing.';
+                    break;
+                case 'allround':
+                    firmware = 'Bruce';
+                    description = 'Most comprehensive toolkit: Wi-Fi, BLE, IR, RFID/NFC, BadUSB, Evil Portal, and more.';
+                    link = 'https://bruce.computer/flasher';
+                    note = 'Select M5StickC Plus 2 in the flasher.';
+                    break;
+                case 'ota':
+                    firmware = 'M5Launcher';
+                    description = 'Bootloader + OTA manager. Install this first, then use it to download other firmwares over Wi-Fi.';
+                    link = 'https://bmorcelli.github.io/M5Stick-Launcher/flash0.html';
+                    note = 'After flashing Launcher, you never need a PC again.';
+                    break;
+                case 'rfid':
+                    firmware = 'Bruce or Infiltra';
+                    description = 'Both support RFID/NFC, IR, and BLE. Bruce has more active attacks; Infiltra focuses on recon and file explorer.';
+                    link = 'https://bruce.computer/flasher';
+                    note = 'Try Bruce first for RFID cloning and IR attacks. Infiltra is also excellent.';
+                    break;
+                default:
+                    firmware = 'Bruce';
+                    description = 'Versatile all-in-one firmware for most use cases.';
+                    link = 'https://bruce.computer/flasher';
+                    note = 'Reliable choice for general hacking.';
+            }
+        }
+
+        recFirmwareName.innerText = firmware;
+        recDescription.innerText = description;
+        recFlashLink.href = link;
+        recNote.innerText = note;
+        recBox.style.display = 'block';
+    }
+
+    // Initialize default selection (no OTA preference selected, set 'no' as default style)
+    document.querySelector('.option-btn[data-ota="no"]').classList.add('selected');
+    updateRecommendation();
+</script>
+
+<script>
+    // Service Worker registration (same as before)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js').then(reg => {
+                console.log('SW registered: ', reg);
+            }).catch(err => {
+                console.log('SW registration failed: ', err);
+            });
+        });
+    }
+</script>
+</body>
+</html>
