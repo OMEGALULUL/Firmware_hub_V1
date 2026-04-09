@@ -1,5 +1,5 @@
 // sw.js - Service Worker for M5Stick Firmware Hub
-const CACHE_NAME = 'm5-firmware-hub-v2';
+const CACHE_NAME = 'm5-firmware-hub-v3';
 //Change Version for new updates
 // List of core assets to cache (add your local esptool-js files if offline)
 const urlsToCache = [
